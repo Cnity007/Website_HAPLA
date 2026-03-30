@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAPLA Fishing - Official Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #72A0C9;
+            /* Soft Blue (from Logo) */
+            --secondary-color: #5184B0;
+            /* Darker Blue */
+            --accent-color: #A0C4E2;
+            /* Light Blue Accent */
+            --bg-color: #F4F8FB;
+            /* Very light blue/white */
+            --text-color: #2C4A63;
+            /* Dark navy blue */
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            /* Change cursor everywhere to encourage clicking */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Bubbles Container */
+        #bubble-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            /* Let clicks pass through to underneath except on bubbles */
+            z-index: 10;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5);
+            pointer-events: auto;
+            /* Allow clicking on bubbles */
+            cursor: pointer;
+            animation: floatUp linear infinite, wobble 2s ease-in-out infinite alternate;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .bubble:hover {
+            transform: scale(1.15) translateY(-5px);
+        }
+
+        .bubble.pop {
+            animation: pop 0.2s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+
+            5% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-120vh);
+                opacity: 0;
+            }
+        }
+
+        @keyframes wobble {
+            0% {
+                margin-left: -20px;
+            }
+
+            100% {
+                margin-left: 20px;
+            }
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(92, 159, 230, 0.15);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin: 0 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        nav a:hover {
+            color: white;
+            background-color: var(--primary-color);
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 178, 242, 0.4);
+        }
+
+        nav a:active {
+            transform: scale(0.95);
+        }
+
+        /* Language Toggler */
+        .lang-switch {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-switch button {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lang-switch button.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(99, 178, 242, 0.4);
+            transform: scale(1.05);
+        }
+
+        .lang-switch button:hover:not(.active) {
+            transform: scale(1.1) translateY(-2px);
+            background: rgba(99, 178, 242, 0.1);
+        }
+
+        /* Hero Section (Logo) */
+        header {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 60px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .bg-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.35;
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, var(--bg-color) 100%);
+            z-index: 0;
+        }
+
+        .logo {
+            max-width: 80%;
+            height: auto;
+            animation: floatLogo 4s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(59, 114, 179, 0.2));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        .logo:active {
+            transform: scale(0.95) rotate(-3deg);
+        }
+
+        @keyframes floatLogo {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(1.5deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+
+        /* Fish Showcase Section */
+        #fish-showcase {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 2.8rem;
+            margin-bottom: 60px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            /* Bouncy entrance Setup */
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .fish-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .fish-card {
+            flex: 1 1 240px;
+            max-width: 280px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(92, 159, 230, 0.1);
+            border: 3px solid white;
+            /* Setup for animation */
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fish-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+            pointer-events: none;
+            border-radius: 30px;
+        }
+
+        .fish-card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .fish-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(92, 159, 230, 0.25);
+            border-color: var(--primary-color);
+        }
+
+        .fish-card:active {
+            transform: translateY(-5px) scale(0.95);
+        }
+
+        .fish-card img {
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        .fish-card:hover img {
+            transform: scale(1.15) translateY(-10px) rotate(-5deg);
+        }
+
+        .fish-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .fish-card p {
+            font-size: 1rem;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* Team & Contact Section */
+        #team-contact {
+            background: linear-gradient(180deg, var(--bg-color) 0%, white 100%);
+            padding: 100px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        #team-contact .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(92, 159, 230, 0.1);
+            border: 3px dashed var(--primary-color);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        #team-contact .container.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #team-contact .container:hover {
+            transform: scale(1.03) translateY(-5px);
+            border-style: solid;
+            box-shadow: 0 20px 50px rgba(92, 159, 230, 0.2);
+        }
+
+        #team-contact .container:active {
+            transform: scale(0.98);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+            font-weight: 300;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        footer:hover {
+            background-color: var(--primary-color);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid white;
+            animation: pulse-button 2s infinite;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.08) translateY(-5px);
+            border-color: var(--accent-color);
+            animation: none;
+        }
+
+        .download-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes pulse-button {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Team Grid Styles */
+        .team-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .team-card {
+            flex: 1 1 220px;
+            max-width: 220px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(92, 159, 230, 0.15);
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.8) translateY(30px);
+        }
+
+        .team-card.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: var(--accent-color);
+            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4);
+            background: white;
+        }
+
+        .team-img-wrapper {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(72, 201, 176, 0.3);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: #f0f0f0;
+        }
+
+        .team-card:hover .team-img-wrapper {
+            transform: scale(1.1) rotate(5deg);
+            border-color: var(--accent-color);
+        }
+
+        .team-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .team-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            font-size: 1.4rem;
+            transition: color 0.3s;
+        }
+
+        .team-card:hover h3 {
+            color: var(--primary-color);
+        }
+
+        .team-card p {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .ig-icon {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 10px rgba(220, 39, 67, 0.2);
+        }
+
+        .team-card:hover .ig-icon {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(220, 39, 67, 0.4);
+        }
+
+        .main-ig-btn {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(220, 39, 67, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 10px;
+        }
+
+        .main-ig-btn:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(220, 39, 67, 0.5);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bubble-container"></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="#home" data-i18n="navHome">หน้าหลัก</a>
+                <a href="#fish-showcase" data-i18n="navFish">สารานุกรมปลา</a>
+                <a href="#team-contact" data-i18n="navContact">ทีมพัฒนา + คอนแท็ก</a>
+            </div>
+            <div class="lang-switch">
+                <button id="btn-th" class="active">TH</button>
+                <button id="btn-en">EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <header id="home">
+        <video class="bg-video" autoplay loop muted playsinline>
+            <source src="Asset/HAPLA_GAMEPLAY.mp4">
+        </video>
+        <div class="header-overlay"></div>
+        <div style="text-align: center; z-index: 2; position: relative;">
+            <img src="Asset/Logo.PNG" alt="HAPLA Fishing Logo" class="logo">
+            <br>
+            <a href="https://drive.google.com/drive/folders/18dafHtgvVF3uFCWYzaQy5htSm1axlnEp?usp=sharing"
+                target="_blank" class="download-btn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span data-i18n="downloadBtn">ดาวน์โหลดเกม</span>
+            </a>
+        </div>
+    </header>
+
+    <section id="fish-showcase">
+        <h2 class="section-title" data-i18n="heroTitle">เหล่าปลาสุดน่ารักใน HAPLA Fishing</h2>
+        <div class="fish-grid">
+
+            <div class="fish-card">
+                <img src="Asset/1.PNG" alt="Birdterflyfish">
+                <h3 data-i18n="fish1Name">Birdterflyfish</h3>
+                <p data-i18n="fish1Desc">A fish that dreamed of flying but settled for looking like a very confused,
+                    waterproof butterfly.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/2.PNG" alt="Capyclown">
+                <h3 data-i18n="fish2Name">Capyclown</h3>
+                <p data-i18n="fish2Desc">The world’s chillest clown. It’s 50% Nemo and 50% "I don’t care about
+                    anything," making it the king of underwater zen.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/3.PNG" alt="Tigle">
+                <h3 data-i18n="fish3Name">Tigle</h3>
+                <p data-i18n="fish3Desc">A tiger that traded its roar for bubbles. It’s majestic, striped, and probably
+                    wonders why it’s stuck in a tank instead of the jungle.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/4.PNG" alt="Slothmander">
+                <h3 data-i18n="fish4Name">Slothmander</h3>
+                <p data-i18n="fish4Desc">Evolution at its slowest. This guy moves so little that even the seaweed thinks
+                    it’s a rock.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/5.PNG" alt="Octophant">
+                <h3 data-i18n="fish5Name">Octophant</h3>
+                <p data-i18n="fish5Desc">An octopus with an trunk. It can grab eight snacks at once while forgetting
+                    where it put its keys ironic for an elephant, right?</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/6.PNG" alt="Shrimpbunny">
+                <h3 data-i18n="fish6Name">Shrimpbunny</h3>
+                <p data-i18n="fish6Desc">A shrimp with bunny ears. It doesn't swim; it just "hops" through the water
+                    looking like a very fancy piece of tempura.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/7.PNG" alt="Seasheep">
+                <h3 data-i18n="fish7Name">Seasheep</h3>
+                <p data-i18n="fish7Desc">A seahorse that’s 90% wool. It’s basically a floating cloud that’s constantly
+                    looking for an underwater meadow to graze on.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/8.PNG" alt="Stringdeer">
+                <h3 data-i18n="fish8Name">Stringdeer</h3>
+                <p data-i18n="fish8Desc">A stingray that grew antlers. It glides through the ocean looking like a
+                    magical forest creature that took a wrong turn at the beach.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/9.PNG" alt="Catfinwolf">
+                <h3 data-i18n="fish9Name">Catfinwolf</h3>
+                <p data-i18n="fish9Desc">The ultimate identity crisis. It wants to bark at the moon, chase a laser, and
+                    swim in the river all at the same time.</p>
+            </div>
+
+            <div class="fish-card">
+                <img src="Asset/10.PNG" alt="Foxeel">
+                <h3 data-i18n="fish10Name">Foxeel</h3>
+                <p data-i18n="fish10Desc">A slippery fox that’s impossible to catch. It’s clever, long, and definitely
+                    the one responsible for all the missing socks in the ocean.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="team-contact">
+        <h2 class="section-title" data-i18n="teamTitle" style="margin-bottom: 50px;">ทีมพัฒนา & คอนแท็ก</h2>
+
+        <div class="team-grid">
+            <!-- Aimpossible -->
+            <a href="https://www.instagram.com/iam.19aim?igsh=dmR0MHR6eWdzbTNo" target="_blank" class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="Asset/Aimpossible.jpg" alt="Aimpossible"
+                        onerror="this.src='https://via.placeholder.com/150/FFB6C1/ffffff?text=Aim'">
+                </div>
+                <h3>Aimpossible</h3>
+                <p data-i18n="roleArtist">อาร์ติสต์ (Artist)</p>
+                <div class="ig-icon">Instagram</div>
+            </a>
+
+            <!-- Cnity -->
+            <a href="https://www.instagram.com/cnity_?igsh=MWNqdzF4dGt5bGI1bg==" target="_blank" class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="Asset/Cnity.jpg" alt="Cnity"
+                        onerror="this.src='https://via.placeholder.com/150/63B2F2/ffffff?text=Cnity'">
+                </div>
+                <h3>Cnity</h3>
+                <p data-i18n="roleDesigner">เกมดีไซเนอร์ (Game Designer)</p>
+                <div class="ig-icon">Instagram</div>
+            </a>
+
+            <!-- Fallerz -->
+            <a href="https://www.instagram.com/x_dos_?igsh=bXVhNHNpbTRzbGVx" target="_blank" class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="Asset/Fallerz.jpg" alt="Fallerz"
+                        onerror="this.src='https://via.placeholder.com/150/FFB6C1/ffffff?text=Fallerz'">
+                </div>
+                <h3>Fallerz</h3>
+                <p data-i18n="roleProgrammer">โปรแกรมเมอร์ (Programmer)</p>
+                <div class="ig-icon">Instagram</div>
+            </a>
+
+            <!-- Erroz -->
+            <a href="https://www.instagram.com/ibe_za_ng?igsh=a2JlbWkzMXhjdzRm" target="_blank" class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="Asset/Erroz.jpg" alt="Erroz"
+                        onerror="this.src='https://via.placeholder.com/150/63B2F2/ffffff?text=Erroz'">
+                </div>
+                <h3>Erroz</h3>
+                <p data-i18n="roleSound">ซาวด์เอนจิเนียร์ (Sound Engineer)</p>
+                <div class="ig-icon">Instagram</div>
+            </a>
+        </div>
+
+        <div class="container" style="margin-top: 60px;">
+            <p style="font-size: 1.2rem; color: var(--text-color); margin-bottom: 20px;" data-i18n="updateText">
+                ติดตามความเคลื่อนไหวและอัปเดตของเกม HAPLA Fishing ได้ที่นี่</p>
+            <a href="https://www.instagram.com/hapl4.official?igsh=MTJhNDUwMzFpeGFpNA==" target="_blank"
+                class="main-ig-btn">
+                Official IG: @hapl4.official
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footerText">&copy; 2026 HAPLA Fishing. All rights reserved. 🐟💦</p>
+    </footer>
+
+    <script>
+        const translations = {
+            th: {
+                navHome: "หน้าหลัก",
+                navFish: "สารานุกรมปลา",
+                navContact: "ทีมพัฒนา & คอนแท็ก",
+                heroTitle: " เหล่าปลาสุดน่ารักใน HAPLA Fishing ",
+                fish1Name: "นกปลาผีเสื้อ (Birdterflyfish)",
+                fish1Desc: "ปลาที่ใฝ่ฝันอยากโบยบิน แต่ดันเกิดมาเป็นผีเสื้อกันน้ำที่ดูงงชีวิตสุดๆ",
+                fish2Name: "คาปิบาร่าทะเล (Capyclown)",
+                fish2Desc: "ตัวตลกที่ชิลที่สุดในโลก ที่ 50% เป็นปลาการ์ตูน อีก 50% คือ 'ฉันไม่แคร์อะไรทั้งนั้น' ราชาแห่งความสงบใต้น้ำตัวจริง",
+                fish3Name: "เสือลายน้ำ (Tigle)",
+                fish3Desc: "เสือโคร่งที่เปลี่ยนเสียงคำรามเป็นฟองสบู่ ลายสวยงามสง่า แต่น่าจะกำลังงงว่ามาอยู่ในตู้ปลาแทนที่จะเป็นป่าได้ยังไง",
+                fish4Name: "สล็อธแมนเดอร์ (Slothmander)",
+                fish4Desc: "วิวัฒนาการที่ช้าที่สุดในประวัติศาสตร์ ขยับตัวน้อยมากจนสาหร่ายยังนึกว่าเป็นก้อนหิน",
+                fish5Name: "หมึกช้าง (Octophant)",
+                fish5Desc: "ปลาหมึกที่มีงวงช้าง คว้าขนมได้พร้อมกัน 8 ชิ้น แต่ดันลืมว่าวางกุญแจไว้ไหน แปลกจังที่เป็นช้างแต่ความจำสั้น",
+                fish6Name: "กุ้งกระต่าย (Shrimpbunny)",
+                fish6Desc: "น้องกุ้งหูยาว ไม่ว่ายน้ำแต่ใช้วิธี 'กระโดด' ไปตามผิวน้ำ ดูเหมือนกุ้งเทมปุระที่ไฮโซมากๆ",
+                fish7Name: "ม้าน้ำแกะ (Seasheep)",
+                fish7Desc: "ม้าน้ำที่ตัวเป็นขนแกะไปแล้ว 90% เหมือนก้อนเมฆลอยน้ำที่คอยมองหาทุ่งหญ้าใต้น้ำเพื่อเล็มกิน",
+                fish8Name: "กวางกระเบน (Stringdeer)",
+                fish8Desc: "ปลากระเบนที่จู่ๆ ก็มีเขางอก ว่ายพริ้วไหวดุจสัตว์ป่าเวทมนตร์ที่น่าจะหลงทางมาโผล่ที่ชายหาด",
+                fish9Name: "หมาป่าดุก (Catfinwolf)",
+                fish9Desc: "สัตว์ที่สับสนในตัวเองขั้นสุด อยากหอนใส่ดวงจันทร์ และอยากว่ายน้ำในแม่น้ำไปพร้อมๆ กัน",
+                fish10Name: "ปลาไหลจิ้งจอก (Foxeel)",
+                fish10Desc: "จิ้งจอกจอมลื่นไหลที่จับตัวยากสุดๆ ฉลาด ตัวยาว และแน่นอนว่าเป็นตัวการขโมยถุงเท้าทั้งหมดที่หายไปในมหาสมุทร",
+                teamTitle: "ทีมพัฒนา & คอนแท็ก",
+                roleArtist: "อาร์ติสต์ (Artist)",
+                roleDesigner: "เกมดีไซเนอร์ (Game Designer)",
+                roleProgrammer: "โปรแกรมเมอร์ (Programmer)",
+                roleSound: "ซาวด์เอนจิเนียร์ (Sound Engineer)",
+                updateText: "ติดตามความเคลื่อนไหวและอัปเดตของเกม HAPLA Fishing ได้ที่นี่ เร็วๆ นี้!",
+                emailText: "Email: contact@haplafishing.com | Discord: HAPLA_Official",
+                footerText: "&copy; 2026 HAPLA Fishing. All rights reserved.",
+                downloadBtn: "ดาวน์โหลดเกม"
+            },
+            en: {
+                navHome: "Home",
+                navFish: "Fish Encyclopedia",
+                navContact: "Team & Contact",
+                heroTitle: " Adorable Bizarre Fishes in HAPLA Fishing ",
+                fish1Name: "Birdterflyfish",
+                fish1Desc: "A fish that dreamed of flying but settled for looking like a very confused, waterproof butterfly.",
+                fish2Name: "Capyclown",
+                fish2Desc: "The world’s chillest clown. It’s 50% Nemo and 50% \"I don’t care about anything,\" making it the king of underwater zen.",
+                fish3Name: "Tigle",
+                fish3Desc: "A tiger that traded its roar for bubbles. It’s majestic, striped, and probably wonders why it’s stuck in a tank instead of the jungle.",
+                fish4Name: "Slothmander",
+                fish4Desc: "Evolution at its slowest. This guy moves so little that even the seaweed thinks it’s a rock.",
+                fish5Name: "Octophant",
+                fish5Desc: "An octopus with an trunk. It can grab eight snacks at once while forgetting where it put its keys ironic for an elephant, right?",
+                fish6Name: "Shrimpbunny",
+                fish6Desc: "A shrimp with bunny ears. It doesn't swim; it just \"hops\" through the water looking like a very fancy piece of tempura.",
+                fish7Name: "Seasheep",
+                fish7Desc: "A seahorse that’s 90% wool. It’s basically a floating cloud that’s constantly looking for an underwater meadow to graze on.",
+                fish8Name: "Stringdeer",
+                fish8Desc: "A stingray that grew antlers. It glides through the ocean looking like a magical forest creature that took a wrong turn at the beach.",
+                fish9Name: "Catfinwolf",
+                fish9Desc: "The ultimate identity crisis. It wants to bark at the moon and swim in the river all at the same time.",
+                fish10Name: "Foxeel",
+                fish10Desc: "A slippery fox that’s impossible to catch. It’s clever, long, and definitely the one responsible for all the missing socks in the ocean.",
+                teamTitle: "Team & Contact",
+                roleArtist: "Artist",
+                roleDesigner: "Game Designer",
+                roleProgrammer: "Programmer",
+                roleSound: "Sound Engineer",
+                updateText: "Follow HAPLA Fishing updates here soon!",
+                emailText: "Email: contact@haplafishing.com | Discord: HAPLA_Official",
+                footerText: "&copy; 2026 HAPLA Fishing. All rights reserved.",
+                downloadBtn: "Download Game"
+            }
+        };
+
+        function setLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply Thai as default language to populate innerHTML
+            setLanguage('th');
+
+            // Language switch event listeners
+            document.getElementById('btn-th').addEventListener('click', () => setLanguage('th'));
+            document.getElementById('btn-en').addEventListener('click', () => setLanguage('en'));
+
+            const cards = document.querySelectorAll('.fish-card');
+            const titles = document.querySelectorAll('.section-title');
+            const containers = document.querySelectorAll('#team-contact .container, .team-card');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        // Stagger effect for cards
+                        if (entry.target.classList.contains('fish-card')) {
+                            let delay = Array.from(cards).indexOf(entry.target) * 100;
+                            setTimeout(() => {
+                                entry.target.classList.add('visible');
+                            }, delay % 500); // cap delay so it doesn't take too long
+                        } else {
+                            entry.target.classList.add('visible');
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            cards.forEach(card => observer.observe(card));
+            titles.forEach(title => observer.observe(title));
+            containers.forEach(container => observer.observe(container));
+
+            // Bubble creation and pop logic
+            const bubbleContainer = document.getElementById('bubble-container');
+
+            function createBubble() {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+
+                const size = Math.random() * 40 + 20;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+
+                const isLeft = Math.random() > 0.5;
+                if (isLeft) {
+                    bubble.style.left = `${Math.random() * 10}vw`;
+                } else {
+                    bubble.style.left = `${Math.random() * 10 + 85}vw`;
+                }
+
+                // Random animation duration
+                const duration = Math.random() * 4 + 6; // 6s - 10s
+                const wobbleSpeed = Math.random() * 2 + 1.5;
+                bubble.style.animationDuration = `${duration}s, ${wobbleSpeed}s`; // floatUp, wobble
+
+                // Random delay
+                const delay = Math.random() * 2;
+                bubble.style.animationDelay = `0s, ${delay}s`;
+
+                // Handle click to pop
+                bubble.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent trigger ripples on bubble click
+                    bubble.classList.add('pop');
+                    setTimeout(() => {
+                        bubble.remove();
+                        createBubble(); // Replace immediately when popped
+                    }, 200);
+                });
+
+                // Remove when animation ends
+                bubble.addEventListener('animationend', (e) => {
+                    if (e.animationName === 'floatUp') {
+                        bubble.remove();
+                    }
+                });
+
+                bubbleContainer.appendChild(bubble);
+            }
+
+            // Create initial bubbles
+            for (let i = 0; i < 4; i++) {
+                setTimeout(createBubble, Math.random() * 4000);
+            }
+
+            // Continuously spawn bubbles with slower interval
+            setInterval(createBubble, 6000);
+
+            // Smooth scrolling for navigation with bouncy offset
+            document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    if (targetSection) {
+                        window.scrollTo({
+                            top: targetSection.offsetTop - 80, // Offset for fixed navbar
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Add click ripple effect anywhere for extra cuteness
+            document.body.addEventListener('click', function (e) {
+                if (!e.target.classList.contains('bubble') && !e.target.closest('button')) {
+                    const clickBubble = document.createElement('div');
+                    clickBubble.style.position = 'fixed';
+                    clickBubble.style.left = `${e.clientX - 10}px`;
+                    clickBubble.style.top = `${e.clientY - 10}px`;
+                    clickBubble.style.width = '20px';
+                    clickBubble.style.height = '20px';
+                    clickBubble.style.border = '3px solid rgba(255,182,193,0.8)'; // Cute pink border
+                    clickBubble.style.borderRadius = '50%';
+                    clickBubble.style.pointerEvents = 'none';
+                    clickBubble.style.zIndex = '9999';
+                    clickBubble.style.animation = 'clickRipple 0.4s ease-out forwards';
+
+                    document.body.appendChild(clickBubble);
+
+                    setTimeout(() => {
+                        clickBubble.remove();
+                    }, 400);
+                }
+            });
+
+            // Add keyframes for click ripple to stylesheet dynamically
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes clickRipple {
+                    0% { transform: scale(0.5); opacity: 1; border-width: 3px; }
+                    100% { transform: scale(3.5); opacity: 0; border-width: 0px; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+
+</html>
