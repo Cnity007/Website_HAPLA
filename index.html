@@ -266,6 +266,42 @@
             }
         }
 
+        /* Game Trailer Section */
+        #game-trailer {
+            padding: 80px 20px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .trailer-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(92, 159, 230, 0.2);
+            border: 4px solid white;
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .trailer-container.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .trailer-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* ensures video is fully visible without cropping */
+            background-color: #000;
+            border-radius: 26px;
+        }
+
         /* Fish Showcase Section */
         #fish-showcase {
             padding: 100px 20px;
@@ -471,7 +507,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 30px;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
             position: relative;
@@ -595,6 +631,7 @@
         <div class="nav-container">
             <div class="nav-links">
                 <a href="#home" data-i18n="navHome">หน้าหลัก</a>
+                <a href="#game-trailer" data-i18n="navTrailer">ตัวอย่างเกม</a>
                 <a href="#fish-showcase" data-i18n="navFish">สารานุกรมปลา</a>
                 <a href="#team-contact" data-i18n="navContact">ทีมพัฒนา + คอนแท็ก</a>
             </div>
@@ -625,6 +662,16 @@
             </a>
         </div>
     </header>
+
+    <section id="game-trailer">
+        <h2 class="section-title" data-i18n="trailerTitle">ตัวอย่างเกม HAPLA Fishing</h2>
+        <div class="trailer-container">
+            <video controls>
+                <source src="Asset/HAPLA-Trailer.mov">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </section>
 
     <section id="fish-showcase">
         <h2 class="section-title" data-i18n="heroTitle">เหล่าปลาสุดน่ารักใน HAPLA Fishing</h2>
@@ -770,8 +817,10 @@
         const translations = {
             th: {
                 navHome: "หน้าหลัก",
+                navTrailer: "ตัวอย่างเกม",
                 navFish: "สารานุกรมปลา",
                 navContact: "ทีมพัฒนา & คอนแท็ก",
+                trailerTitle: "ตัวอย่างเกม HAPLA Fishing",
                 heroTitle: " เหล่าปลาสุดน่ารักใน HAPLA Fishing ",
                 fish1Name: "นกปลาผีเสื้อ (Birdterflyfish)",
                 fish1Desc: "ปลาที่ใฝ่ฝันอยากโบยบิน แต่ดันเกิดมาเป็นผีเสื้อกันน้ำที่ดูงงชีวิตสุดๆ",
@@ -805,8 +854,10 @@
             },
             en: {
                 navHome: "Home",
+                navTrailer: "Game Trailer",
                 navFish: "Fish Encyclopedia",
                 navContact: "Team & Contact",
+                trailerTitle: "HAPLA Fishing Game Trailer",
                 heroTitle: " Adorable Bizarre Fishes in HAPLA Fishing ",
                 fish1Name: "Birdterflyfish",
                 fish1Desc: "A fish that dreamed of flying but settled for looking like a very confused, waterproof butterfly.",
@@ -862,7 +913,7 @@
 
             const cards = document.querySelectorAll('.fish-card');
             const titles = document.querySelectorAll('.section-title');
-            const containers = document.querySelectorAll('#team-contact .container, .team-card');
+            const containers = document.querySelectorAll('#team-contact .container, .team-card, .trailer-container');
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
